@@ -6,10 +6,57 @@
 
 using namespace std;
 
-void branchAndBound(knapsack &k)
+void branchAndBound(knapsack &k, int time)
 // Branch and bound algorithm to solve the knapsack problem.
+// Branching is binary: one branch to take the "next" object, one branch to skip it
+// Should this run on a sorted list?
 {
+	clock_t startTime = clock();
+	knapsack incumbent(k);
+	vector<int> items = k.sort();
+	stack<knapsack> nodes;
+	nodes.push(k);
 
+	while (!nodes.empty() && (clock() - startTime) / CLOCKS_PER_SEC < time)
+	{
+		knapsack current = nodes.top();
+		nodes.pop();
+		bool isFathomed = current.isFathomed(incumbent.getValue());
+		int item = items[current.getCurrentItem()];
+
+		// If node is fathomed, legal, and better than incumbent, it becomes the new incumbent
+		if (isFathomed && current.getCost() <= current.getCostLimit() && current.getValue > incumbent.getValue)
+		{
+			incumbent = knapsack(current);
+		}
+		// If node is fathomed and not new incumbent, ignore it
+		// If node is not fathomed, branch on next item
+		else if (!isFathomed)
+		{
+			knapsack yes(current);
+			knapsack no(current);
+
+			// NOTE: I don't like those copy constructors. Pretty sure they're costing us O(n) each, every single iteration...
+			// Is it necessary to do that? I'd like to avoid all that copying if possible...
+			// But I think we need it so that we actually have separate objects. Maybe we only have to copy one of them...
+			// But that really doesn't solve the problem. Thoughts?
+
+			yes.select(item);
+			yes.nextItem();
+			no.nextItem();
+
+			if (yes.bound() >= no.bound())
+			{
+				nodes.push(no);
+				nodes.push(yes);
+			}
+			else
+			{
+				nodes.push(yes);
+				nodes.push(no);
+			}
+		}
+	}
 }
 
 void greedyKnapsack(knapsack &k)

@@ -25,6 +25,7 @@ knapsack::knapsack(ifstream &fin)
 
 	totalValue = 0;
 	totalCost = 0;
+	currentItem = 0;
 }
 
 knapsack::knapsack(const knapsack &k)
@@ -40,6 +41,7 @@ knapsack::knapsack(const knapsack &k)
 
 	totalCost = 0;
 	totalValue = 0;
+	currentItem = k.getCurrentItem();
 
 	for (int i = 0; i < n; i++)
 	{
@@ -50,6 +52,34 @@ knapsack::knapsack(const knapsack &k)
 		else
 			unSelect(i);
 	}
+}
+
+knapsack &knapsack::operator=(const knapsack &k)
+// Knapsack assignment operator.
+{
+	int n = k.getNumObjects();
+
+	value.resize(n);
+	cost.resize(n);
+	selected.resize(n);
+	numObjects = k.getNumObjects();
+	costLimit = k.getCostLimit();
+
+	totalCost = 0;
+	totalValue = 0;
+	currentItem = k.getCurrentItem();
+
+	for (int i = 0; i < n; i++)
+	{
+		value[i] = k.getValue(i);
+		cost[i] = k.getCost(i);
+		if (k.isSelected(i))
+			select(i);
+		else
+			unSelect(i);
+	}
+
+	return *this;
 }
 
 int knapsack::getNumObjects() const
@@ -92,13 +122,18 @@ int knapsack::getValue() const
 	return totalValue;
 }
 
+int knapsack::getCurrentItem() const
+{
+	return currentItem;
+}
+
 float knapsack::getPriority(int i) const
 // Determine priority of an item by its "density" (value/cost)
 {
 	return (float)value[i] / (float)cost[i];
 }
 
-float knapsack::bound()
+float knapsack::bound() const
 // Find bound on current knapsack value by solving partial knapsack problem on the empty space in the knapsack
 {
 	int totalCost = getCost();
@@ -125,6 +160,11 @@ float knapsack::bound()
 		}
 	}
 	return costBound;
+}
+
+void knapsack::nextItem()
+{
+	currentItem++;
 }
 
 ostream &operator<<(ostream &ostr, const knapsack &k)
@@ -206,7 +246,7 @@ void knapsack::unSelect(int i)
 	}
 }
 
-int knapsack::partition(vector<int> &items, int left, int right, int pivot)
+int knapsack::partition(vector<int> &items, int left, int right, int pivot) const
 // Helper for quicksort
 // Put every item with a higher priority than the pivot to the left
 // Put every item with a lower priority than the pivot to the right
@@ -222,7 +262,7 @@ int knapsack::partition(vector<int> &items, int left, int right, int pivot)
 	return left - 1;
 }
 
-void knapsack::quicksort(vector<int> &items, int left, int right)
+void knapsack::quicksort(vector<int> &items, int left, int right) const
 // Sorting items from highest to lowest priority using partition and recursion
 {
 	//partition(k, 0, k.getNumObjects() - 1, items);
@@ -246,13 +286,24 @@ bool knapsack::isSelected(int i) const
 	return selected[i];
 }
 
+bool knapsack::isFathomed(int incumbent) const
+// Knapsack node is fathomed under 3 conditions:
+// - incumbent is greater than or equal to bound
+// - knapsack meets/exceeds cost limit
+// - all items have been considered
+// - checking if another item can be added is O(n), way too expensive...
+//     I believe nodes will be fathomed the same though some may exist in stack longer
+{
+	return (bound() <= incumbent || totalCost >= costLimit || currentItem == numObjects);
+}
+
 vector<bool> knapsack::getSelected()
 // Return a vector of selected items
 {
 	return selected;
 }
 
-vector<int> knapsack::sort()
+vector<int> knapsack::sort() const
 // Public function to return a vector of item numbers, sorted via quicksort
 {
 	vector<int> items(numObjects, 0);
