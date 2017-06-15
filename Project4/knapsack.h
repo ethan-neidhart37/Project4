@@ -12,6 +12,7 @@ class knapsack
 public:
 	knapsack(ifstream &fin);
 	knapsack(const knapsack &);
+	knapsack &operator=(const knapsack &k);
 	int getCost(int) const;
 	int getValue(int) const;
 	int getCost() const;

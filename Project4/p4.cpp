@@ -22,10 +22,9 @@ void branchAndBound(knapsack &k, int time)
 		knapsack current = nodes.top();
 		nodes.pop();
 		bool isFathomed = current.isFathomed(incumbent.getValue());
-		int item = items[current.getCurrentItem()];
 
 		// If node is fathomed, legal, and better than incumbent, it becomes the new incumbent
-		if (isFathomed && current.getCost() <= current.getCostLimit() && current.getValue > incumbent.getValue)
+		if (isFathomed && current.getCost() <= current.getCostLimit() && current.getValue() > incumbent.getValue())
 		{
 			incumbent = knapsack(current);
 		}
@@ -33,6 +32,7 @@ void branchAndBound(knapsack &k, int time)
 		// If node is not fathomed, branch on next item
 		else if (!isFathomed)
 		{
+			int item = items[current.getCurrentItem()];
 			knapsack yes(current);
 			knapsack no(current);
 
@@ -57,6 +57,8 @@ void branchAndBound(knapsack &k, int time)
 			}
 		}
 	}
+
+	k = incumbent;
 }
 
 void greedyKnapsack(knapsack &k)
@@ -142,7 +144,8 @@ void knapsackRun()
 		knapsack k(fin);
 
 		//exhaustiveKnapsack(k, 600);
-		greedyKnapsack(k);
+		//greedyKnapsack(k);
+		branchAndBound(k, 600);
 
 		// Write solution to output file
 		knapsackOutput(k);
