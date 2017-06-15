@@ -260,4 +260,6 @@ vector<int> knapsack::sort()
 		items[i] = i;
 
 	quicksort(items, 0, numObjects);
+
+	return items;
 }
