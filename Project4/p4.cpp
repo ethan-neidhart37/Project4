@@ -6,42 +6,6 @@
 
 using namespace std;
 
-/*float getPriority(knapsack &k, int i)
-// Determine priority of an item by its "density" (value/cost)
-{
-	return (float)k.getValue(i) / (float)k.getCost(i);
-}
-
-int partition(knapsack &k, vector<int> &items, int left, int right, int pivot)
-// Put every item with a higher priority than the pivot to the left
-// Put every item with a lower priority than the pivot to the right
-{
-	for (int i = left; i < right; i++)
-	{
-		if (getPriority(k, items[i]) >= getPriority(k, pivot))
-		{
-			swap(items[i], items[left]);
-			left++;
-		}
-	}
-	return left - 1;
-}
-
-void quicksortKnapsack(knapsack &k, vector<int> &items, int left, int right)
-// Sorting items from highest to lowest priority using partition
-{
-	//partition(k, 0, k.getNumObjects() - 1, items);
-	if (left >= right)
-		return;
-
-	int middle = left + (right - left) / 2;
-	swap(items[middle], items[left]);
-	int midpoint = partition(k, items, left + 1, right, items[left]);
-	swap(items[left], items[midpoint]);
-	quicksortKnapsack(k, items, left, midpoint);
-	quicksortKnapsack(k, items, midpoint + 1, right);
-}*/
-
 void branchAndBound(knapsack &k)
 // Branch and bound algorithm to solve the knapsack problem.
 {
