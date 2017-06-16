@@ -65,18 +65,19 @@ knapsack &knapsack::operator=(const knapsack &k)
 	numObjects = k.getNumObjects();
 	costLimit = k.getCostLimit();
 
-	totalCost = 0;
-	totalValue = 0;
+	totalCost = k.getCost();
+	totalValue = k.getValue();
 	currentItem = k.getCurrentItem();
 
 	for (int i = 0; i < n; i++)
 	{
 		value[i] = k.getValue(i);
 		cost[i] = k.getCost(i);
-		if (k.isSelected(i))
+		selected[i] = k.isSelected(i);
+		/*if (k.isSelected(i))
 			select(i);
 		else
-			unSelect(i);
+			unSelect(i);*/
 	}
 
 	return *this;
