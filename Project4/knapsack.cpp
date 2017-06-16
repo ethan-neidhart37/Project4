@@ -289,12 +289,25 @@ bool knapsack::isSelected(int i) const
 }
 
 bool knapsack::isFathomed(int incumbent)
-// Knapsack node is fathomed under 3 conditions:
+// Knapsack node is fathomed under 4 conditions:
 // - incumbent is greater than or equal to bound
 // - knapsack meets/exceeds cost limit
 // - all items have been considered
+// - no more items can fit in the knapsack
 {
-	return (bound(currentItem) <= incumbent || totalCost >= costLimit || currentItem == numObjects);
+	if (bound(currentItem) <= incumbent || totalCost >= costLimit || currentItem == numObjects)
+		return true;
+
+	for (int i = 0; i < numObjects; i++)
+	{
+		if (selected[i])
+			continue;
+
+		if (totalCost + cost[i] <= costLimit)
+			return false;
+	}
+
+	return true;
 }
 
 vector<bool> knapsack::getSelected()
