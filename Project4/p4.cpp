@@ -6,46 +6,54 @@
 
 using namespace std;
 
-/*float getPriority(knapsack &k, int i)
-// Determine priority of an item by its "density" (value/cost)
+void branchAndBound(knapsack &k, int time)
+// Branch and bound algorithm to solve the knapsack problem.
+// Branching is binary: one branch to take the "next" object, one branch to skip it
 {
-	return (float)k.getValue(i) / (float)k.getCost(i);
-}
+	clock_t startTime = clock();
+	knapsack incumbent(k);
+	vector<int> items = k.sort();
+	stack<knapsack> nodes;
+	k.bound(items[k.getCurrentItem()]);
+	nodes.push(k);
 
-int partition(knapsack &k, vector<int> &items, int left, int right, int pivot)
-// Put every item with a higher priority than the pivot to the left
-// Put every item with a lower priority than the pivot to the right
-{
-	for (int i = left; i < right; i++)
+	while (!nodes.empty() && (clock() - startTime) / CLOCKS_PER_SEC < time)
 	{
-		if (getPriority(k, items[i]) >= getPriority(k, pivot))
+		knapsack current = nodes.top();
+		nodes.pop();
+		bool isFathomed = current.isFathomed(incumbent.getValue());
+
+		// If node is fathomed, legal, and better than incumbent, it becomes the new incumbent
+		if (isFathomed && current.getCost() <= current.getCostLimit() && current.getValue() > incumbent.getValue())
 		{
-			swap(items[i], items[left]);
-			left++;
+			incumbent = current;
+		}
+		// If node is fathomed and not new incumbent, ignore it
+		// If node is not fathomed, branch on next item
+		else if (!isFathomed)
+		{
+			int item = items[current.getCurrentItem()];
+			knapsack yes(current);
+			knapsack no(current);
+
+			yes.select(item);
+			yes.nextItem();
+			no.nextItem();
+
+			if (yes.bound(yes.getCurrentItem()) >= no.bound(no.getCurrentItem()))
+			{
+				nodes.push(no);
+				nodes.push(yes);
+			}
+			else
+			{
+				nodes.push(yes);
+				nodes.push(no);
+			}
 		}
 	}
-	return left - 1;
-}
 
-void quicksortKnapsack(knapsack &k, vector<int> &items, int left, int right)
-// Sorting items from highest to lowest priority using partition
-{
-	//partition(k, 0, k.getNumObjects() - 1, items);
-	if (left >= right)
-		return;
-
-	int middle = left + (right - left) / 2;
-	swap(items[middle], items[left]);
-	int midpoint = partition(k, items, left + 1, right, items[left]);
-	swap(items[left], items[midpoint]);
-	quicksortKnapsack(k, items, left, midpoint);
-	quicksortKnapsack(k, items, midpoint + 1, right);
-}*/
-
-void branchAndBound(knapsack &k)
-// Branch and bound algorithm to solve the knapsack problem.
-{
-
+	k = incumbent;
 }
 
 void greedyKnapsack(knapsack &k)
@@ -131,7 +139,8 @@ void knapsackRun()
 		knapsack k(fin);
 
 		//exhaustiveKnapsack(k, 600);
-		greedyKnapsack(k);
+		//greedyKnapsack(k);
+		branchAndBound(k, 600);
 
 		// Write solution to output file
 		knapsackOutput(k);
@@ -150,65 +159,4 @@ void knapsackRun()
 	}
 
 	fin.close();
-
-	// loop input all files
-
-	/*
-	vector<string> s;
-	s.push_back("knapsack/input/knapsack8.input");
-	s.push_back("knapsack/input/knapsack12.input");
-	s.push_back("knapsack/input/knapsack16.input");
-	s.push_back("knapsack/input/knapsack20.input");
-	s.push_back("knapsack/input/knapsack28.input");
-	s.push_back("knapsack/input/knapsack32.input");
-	s.push_back("knapsack/input/knapsack48.input");
-	s.push_back("knapsack/input/knapsack64.input");
-	s.push_back("knapsack/input/knapsack128.input");
-	s.push_back("knapsack/input/knapsack256.input");
-	s.push_back("knapsack/input/knapsack512.input");
-	s.push_back("knapsack/input/knapsack1024.input");
-
-	for (int i = 0; i < s.size(); i++)
-	{
-		//cout << "Enter filename" << endl;
-		//cin >> fileName;
-		fileName = s[i];
-		fin.open(fileName.c_str());
-		if (!fin)
-		{
-			cerr << "Cannot open " << fileName << endl;
-			exit(1);
-		}
-
-		try
-		{
-			cout << "Reading knapsack instance for " << s[i] << endl;
-
-			knapsack k(fin);
-
-			//exhaustiveKnapsack(k, 600);
-			greedyKnapsack(k);
-
-			// Write solution to output file
-			knapsackOutput(k);
-
-			cout << endl << "Best solution" << endl;
-			k.printSolution();
-
-			// Pause to view results
-			system("PAUSE");
-		}
-
-		catch (indexRangeError &ex)
-		{
-			cout << ex.what() << endl; exit(1);
-		}
-		catch (rangeError &ex)
-		{
-			cout << ex.what() << endl; exit(1);
-		}
-
-		fin.close();
-	}
-	*/
 }

@@ -5,6 +5,7 @@
 #include <list>
 #include <fstream>
 #include <queue>
+#include <stack>
 #include <vector>
 #include <time.h>
 
