@@ -1,0 +1,16 @@
+Authors: Ethan Neidhart, Kevin Do
+
+Knapsack Branch and Bound:
+The branch and bound algorithm for the knapsack problem runs faster than the
+exhaustive search, but not nearly as fast as the greedy algorithm or the ILP
+solver for the knapsack problem. The algorithm seems to run in exponential time
+which is far worse than the greedy algorithm but better than the exhaustive
+search.  The results produced by the branch and bound algorithm are nearly as
+good as the ILP solver, a llittle bit better than the greedy algorithm, and
+much better than the exhaustive algorithm at higher values (at lower values,
+they gave equal results, as both found the best answer). The branch and bound
+algorithm was able to produce the same results as the ILP solver at low values,
+because both found the optimal solution, but results were not quite as good at
+higher values. Overall, it produced optimal solutions when it had enough time
+(for smaller problems), and very close to optimal solutions when it ran out of
+time (for larger problems).
