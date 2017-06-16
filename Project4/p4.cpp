@@ -17,6 +17,14 @@ void branchAndBound(knapsack &k, int time)
 	stack<knapsack> nodes;
 	nodes.push(k);
 
+	cout << "Cost Bound: " << k.getCostLimit() << endl;
+	cout << "Items:\n";
+	for (int i = 0; i < k.getNumObjects(); i++)
+	{
+		cout << items[i] << "\t" << k.getValue(items[i]) << "\t" << k.getCost(items[i]) << endl;
+	}
+	cout << endl;
+
 	while (!nodes.empty() && (clock() - startTime) / CLOCKS_PER_SEC < time)
 	{
 		knapsack current = nodes.top();
@@ -26,7 +34,29 @@ void branchAndBound(knapsack &k, int time)
 		// If node is fathomed, legal, and better than incumbent, it becomes the new incumbent
 		if (isFathomed && current.getCost() <= current.getCostLimit() && current.getValue() > incumbent.getValue())
 		{
-			incumbent = knapsack(current);
+			cout << "Fathomed Incumbent\n";
+			cout << "----------------------------\n";
+			cout << "Old Incumbent: " << incumbent.getValue() << endl;
+			cout << "Value: " << current.getValue() << endl;
+			cout << "Selected Items: ";
+			for (int i = 0; i < current.getNumObjects(); i++)
+			{
+				if (current.isSelected(items[i]))
+					cout << items[i] << ", ";
+			}
+			cout << endl;
+
+			incumbent = current;
+
+			cout << "New Incumbent:\n";
+			cout << "Value: " << incumbent.getValue() << endl;
+			cout << "Selected Items: ";
+			for (int i = 0; i < incumbent.getNumObjects(); i++)
+			{
+				if (current.isSelected(items[i]))
+					cout << items[i] << ", ";
+			}
+			cout << endl << endl;
 		}
 		// If node is fathomed and not new incumbent, ignore it
 		// If node is not fathomed, branch on next item
@@ -35,6 +65,18 @@ void branchAndBound(knapsack &k, int time)
 			int item = items[current.getCurrentItem()];
 			knapsack yes(current);
 			knapsack no(current);
+
+			cout << "Unfathomed Node\n";
+			cout << "----------------------------\n";
+			cout << "Incumbent: " << incumbent.getValue() << endl;
+			cout << "Current Item: " << item << ", bound: " << current.getBound() << ", value: " << current.getValue() << endl;
+			cout << "Selected Items: ";
+			for (int i = 0; i < current.getNumObjects(); i++)
+			{
+				if (current.isSelected(items[i]))
+					cout << items[i] << ", ";
+			}
+			cout << endl;
 
 			// NOTE: I don't like those copy constructors. Pretty sure they're costing us O(n) each, every single iteration...
 			// Is it necessary to do that? I'd like to avoid all that copying if possible...
@@ -45,7 +87,20 @@ void branchAndBound(knapsack &k, int time)
 			yes.nextItem();
 			no.nextItem();
 
-			if (yes.bound() >= no.bound())
+			// Error checking...
+			if (yes.getCurrentItem() != no.getCurrentItem() || yes.getCurrentItem() - current.getCurrentItem() != 1)
+			{
+				cout << "Error on " << current.getCurrentItem() << ":\n";
+				cout << "Yes = " << yes.getCurrentItem() << ", No = " << no.getCurrentItem() << endl;
+			}
+
+			if (!yes.isSelected(item) || no.isSelected(item))
+			{
+				cout << "Error on " << current.getCurrentItem() << ":\n";
+				cout << "Yes = " << yes.isSelected(item) << ", No = " << no.isSelected(item) << endl;
+			}
+
+			if (yes.bound(yes.getCurrentItem()) >= no.bound(no.getCurrentItem()))
 			{
 				nodes.push(no);
 				nodes.push(yes);
@@ -55,6 +110,29 @@ void branchAndBound(knapsack &k, int time)
 				nodes.push(yes);
 				nodes.push(no);
 			}
+
+			cout << "Child Node: yes\n";
+			cout << "Incumbent: " << incumbent.getValue() << endl;
+			cout << "Current Item: " << items[yes.getCurrentItem() - 1] << ", bound: " << yes.getBound() << ", value: " << yes.getValue() << endl;
+			cout << "Selected Items: ";
+			for (int i = 0; i < yes.getNumObjects(); i++)
+			{
+				if (yes.isSelected(items[i]))
+					cout << items[i] << ", ";
+			}
+			cout << endl;
+
+			cout << "Child Node: no\n";
+			cout << "Incumbent: " << incumbent.getValue() << endl;
+			cout << "Current Item: " << items[no.getCurrentItem() - 1] << ", bound: " << no.getBound() << ", value: " << no.getValue() << endl;
+			cout << "Selected Items: ";
+			for (int i = 0; i < no.getNumObjects(); i++)
+			{
+				if (no.isSelected(items[i]))
+					cout << items[i] << ", ";
+			}
+			cout << endl << endl;
+
 		}
 	}
 

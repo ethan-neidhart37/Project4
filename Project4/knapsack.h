@@ -21,13 +21,14 @@ public:
 	int getCostLimit() const;
 	int getCurrentItem() const;
 	float getPriority(int) const;
-	float bound() const;
+	float bound(int currItem);
+	float getBound() const;
 	void nextItem();
 	void printSolution();
 	void select(int);
 	void unSelect(int);
 	bool isSelected(int) const;
-	bool isFathomed(int incumbent) const;
+	bool isFathomed(int incumbent);
 	vector<bool> getSelected();
 	vector<int> sort() const;
 
@@ -40,6 +41,7 @@ private:
 	int totalValue;
 	int totalCost;
 	int currentItem;
+	float valueBound;
 	int partition(vector<int> &items, int left, int right, int pivot) const;
 	void quicksort(vector<int> &items, int left, int right) const;
 };

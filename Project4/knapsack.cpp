@@ -133,33 +133,40 @@ float knapsack::getPriority(int i) const
 	return (float)value[i] / (float)cost[i];
 }
 
-float knapsack::bound() const
+float knapsack::bound(int currItem)
 // Find bound on current knapsack value by solving partial knapsack problem on the empty space in the knapsack
 {
-	int totalCost = getCost();
-	float costBound = getValue();
+	int theCost = getCost();
+	float theBound = getValue();
 	vector<int> items = sort();
 
-	for (int i = 0; i < numObjects && costBound < getCostLimit(); i++)
+	for (int i = currItem; i < numObjects && theCost < costLimit; i++)
 	{
 		int item = items[i];
 		if (selected[item])
 			continue;
 
-		if (cost[item] + totalCost <= costLimit)
+		if (cost[item] + theCost <= costLimit)
 		{
-			totalCost += cost[item];
-			costBound += value[item];
+			theCost += cost[item];
+			theBound += value[item];
 		}
 		else
 		{
-			int diff = costLimit - totalCost;
+			int diff = costLimit - theCost;
 			float partialValue = diff * getPriority(item);
-			totalCost += diff;
-			costBound += partialValue;
+			theCost += diff;
+			theBound += partialValue;
 		}
 	}
-	return costBound;
+
+	valueBound = theBound;
+	return valueBound;
+}
+
+float knapsack::getBound() const
+{
+	return valueBound;
 }
 
 void knapsack::nextItem()
@@ -286,7 +293,7 @@ bool knapsack::isSelected(int i) const
 	return selected[i];
 }
 
-bool knapsack::isFathomed(int incumbent) const
+bool knapsack::isFathomed(int incumbent)
 // Knapsack node is fathomed under 3 conditions:
 // - incumbent is greater than or equal to bound
 // - knapsack meets/exceeds cost limit
@@ -294,7 +301,7 @@ bool knapsack::isFathomed(int incumbent) const
 // - checking if another item can be added is O(n), way too expensive...
 //     I believe nodes will be fathomed the same though some may exist in stack longer
 {
-	return (bound() <= incumbent || totalCost >= costLimit || currentItem == numObjects);
+	return (bound(currentItem) <= incumbent || totalCost >= costLimit || currentItem == numObjects);
 }
 
 vector<bool> knapsack::getSelected()
