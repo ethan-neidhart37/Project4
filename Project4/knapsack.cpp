@@ -160,17 +160,11 @@ float knapsack::bound(int currItem)
 			theBound += partialValue;
 		}
 	}
-
-	valueBound = theBound;
-	return valueBound;
-}
-
-float knapsack::getBound() const
-{
-	return valueBound;
+	return theBound;
 }
 
 void knapsack::nextItem()
+// Knapsack is now focusing on next item (for branch and bound)
 {
 	currentItem++;
 }
@@ -299,8 +293,6 @@ bool knapsack::isFathomed(int incumbent)
 // - incumbent is greater than or equal to bound
 // - knapsack meets/exceeds cost limit
 // - all items have been considered
-// - checking if another item can be added is O(n), way too expensive...
-//     I believe nodes will be fathomed the same though some may exist in stack longer
 {
 	return (bound(currentItem) <= incumbent || totalCost >= costLimit || currentItem == numObjects);
 }

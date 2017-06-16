@@ -22,7 +22,6 @@ public:
 	int getCurrentItem() const;
 	float getPriority(int) const;
 	float bound(int currItem);
-	float getBound() const;
 	void nextItem();
 	void printSolution();
 	void select(int);
@@ -41,7 +40,6 @@ private:
 	int totalValue;
 	int totalCost;
 	int currentItem;
-	float valueBound;
 	int partition(vector<int> &items, int left, int right, int pivot) const;
 	void quicksort(vector<int> &items, int left, int right) const;
 };
